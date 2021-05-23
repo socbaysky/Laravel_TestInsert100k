@@ -12,4 +12,4 @@ Create Database:
 Flow:
 
 -   At first run **"php artisan db:seed --class=TestInsert"** : Create large array with 100k item and json_encode this large array and store to Cache.
--   Next run **"db:seed --class=TestInsert"** : Pull from cache and json_decode to convert to array again, use paginate function to split large array to many small array, using DB Transaction and bulk insert to insert into MySQL for optimize.
+-   Next run **"php artisan db:seed --class=TestInsert"** : Pull from cache and json_decode to convert to array again, use paginate function to split large array to many small array, using DB Transaction and bulk insert to insert into MySQL for optimize.
