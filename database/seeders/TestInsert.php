@@ -15,6 +15,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class TestInsert extends Seeder
 {
+    public function paginate($items, $perPage = 10000, $page = 1)
+    {
+        return collect($items)->forPage($page, $perPage)->toArray();
+    }
     /**
      * Run the database seeds.
      *
@@ -25,26 +29,30 @@ class TestInsert extends Seeder
         $faker = Faker\Factory::create();
         DB::beginTransaction();
         try {
+            $total = 100000;
+            $perPage = 10000;
             $key = 'need_insert';
             $start = microtime(true);
             if (Cache::has($key)) {
                 $text = 'insert';
 
                 // retrive from cache and delete for next testing
-                $datas = json_decode(Cache::pull($key), true);
+                $datas = json_decode(Cache::get($key), true);
 
-                // split large array to small array for optimize speed insert
-                $datas = $this->paginate($datas);
+                $num_page = ceil($total / $perPage);
                 
                 // start insert
-                foreach ($datas as $data) {
-                    DB::table('tests')->insert($data);
+                for ($i=1; $i <= $num_page; $i++) { 
+                    $smalList = $this->paginate($datas, $perPage);
+                    foreach ($smalList as $small) {
+                        DB::table('tests')->insert($small);
+                    }
                 }
             } else {
                 $text = "create";
                 $data = [];
                 // create 
-                for ($i=0; $i < 100000; $i++) {
+                for ($i=0; $i < $total; $i++) {
                     $name = $faker->name;
                     $phone = $faker->phoneNumber;
                     $email = $faker->unique()->email;
@@ -86,13 +94,5 @@ class TestInsert extends Seeder
         
             throw new Exception($e->getMessage());
         }
-        
-    }
-
-    public function paginate($items, $perPage = 10000, $page = null, $options = [])
-    {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-        $items = $items instanceof Collection ? $items : Collection::make($items);
-        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
-    }
+    } 
 }
