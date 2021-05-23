@@ -5,6 +5,10 @@ Follow these files:
 -   main process: database/seeders/TestInsert.php
 -   table for test: database/migrations/2021_05_23_041830_create_tests_table.php
 
+Create Database:
+
+-   php artisan migrate
+
 Flow:
 
 -   At first run php artisan "db:seed --class=TestInsert" : Create large array with 100k item and json_encode this large array and store to Cache.
