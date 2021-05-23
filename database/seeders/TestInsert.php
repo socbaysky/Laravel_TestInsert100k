@@ -31,7 +31,7 @@ class TestInsert extends Seeder
                 $text = 'insert';
 
                 // retrive from cache and delete for next testing
-                $datas = json_decode(Cache::pull('need_insert'), true);
+                $datas = json_decode(Cache::pull($key), true);
 
                 // split large array to small array for optimize speed insert
                 $datas = $this->paginate($datas);
