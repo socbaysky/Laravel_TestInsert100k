@@ -25,19 +25,25 @@ class TestInsert extends Seeder
         $faker = Faker\Factory::create();
         DB::beginTransaction();
         try {
+            $key = 'need_insert';
             $start = microtime(true);
-            if (Cache::has('need_insert')) {
+            if (Cache::has($key)) {
                 $text = 'insert';
+
+                // retrive from cache and delete for next testing
                 $datas = json_decode(Cache::pull('need_insert'), true);
 
+                // split large array to small array for optimize speed insert
                 $datas = $this->paginate($datas);
                 
+                // start insert
                 foreach ($datas as $data) {
                     DB::table('tests')->insert($data);
                 }
             } else {
                 $text = "create";
                 $data = [];
+                // create 
                 for ($i=0; $i < 100000; $i++) {
                     $name = $faker->name;
                     $phone = $faker->phoneNumber;
@@ -68,9 +74,11 @@ class TestInsert extends Seeder
                     ];
                 }
 
-                Cache::put('need_insert', json_encode($data));
+                Cache::put($key, json_encode($data));
             }
             DB::commit();
+
+            // measurement
             $time_elapsed_secs = microtime(true) - $start;
             echo $time_elapsed_secs . 's '.$text.'. ';
         } catch (Exception $e) {
